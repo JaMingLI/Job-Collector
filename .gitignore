@@ -4,3 +4,5 @@ server/data/jobs.db
 server/data/jobs.db-shm
 server/data/jobs.db-wal
 prompt.txt
+web/node_modules/
+web/dist/
