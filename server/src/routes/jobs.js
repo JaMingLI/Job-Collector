@@ -1,5 +1,9 @@
 import { db, stmts } from '../db.js';
 import { getSalaryBucket } from '../utils/salary.js';
+import { toJobDto } from '../utils/transform.js';
+
+const VALID_STATUSES = ['pending', 'applied', 'interview', 'accepted', 'rejected', 'unset'];
+const VALID_LEVELS = ['junior', 'mid', 'senior', 'lead', null];
 
 export default async function jobsRoutes(fastify) {
   // POST /api/jobs
@@ -44,6 +48,7 @@ export default async function jobsRoutes(fastify) {
           is_applied: job.isApplied ?? job.is_applied ?? 0,
           is_saved: job.isSaved ?? job.is_saved ?? 0,
           search_keyword: searchContext.keyword || null,
+          source: '104',
         };
 
         if (existing) {
@@ -91,26 +96,34 @@ export default async function jobsRoutes(fastify) {
   fastify.get('/api/jobs', async (request) => {
     const {
       page = 1,
-      limit = 20,
+      limit,
+      pageSize,
       keyword,
+      search,
       skills,
       area,
       salary_min,
+      status,
+      level,
+      source,
       sort = 'created_at',
       order = 'DESC',
     } = request.query;
 
+    const effectiveLimit = pageSize || limit || 20;
+    const effectiveKeyword = search || keyword;
+
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
-    const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+    const limitNum = Math.min(100, Math.max(1, parseInt(effectiveLimit, 10) || 20));
     const offset = (pageNum - 1) * limitNum;
 
     // Build WHERE clauses
     const conditions = [];
     const params = {};
 
-    if (keyword) {
+    if (effectiveKeyword) {
       conditions.push('(job_name LIKE @kw OR cust_name LIKE @kw OR description LIKE @kw)');
-      params.kw = `%${keyword}%`;
+      params.kw = `%${effectiveKeyword}%`;
     }
     if (skills) {
       conditions.push('skills LIKE @skills');
@@ -124,11 +137,23 @@ export default async function jobsRoutes(fastify) {
       conditions.push('salary_low >= @salary_min');
       params.salary_min = parseInt(salary_min, 10);
     }
+    if (status) {
+      conditions.push('status = @status');
+      params.status = status;
+    }
+    if (level) {
+      conditions.push('level = @level');
+      params.level = level;
+    }
+    if (source) {
+      conditions.push('source = @source');
+      params.source = source;
+    }
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // Whitelist sort columns
-    const allowedSorts = ['created_at', 'appear_date', 'salary_low', 'apply_cnt', 'job_name'];
+    const allowedSorts = ['created_at', 'appear_date', 'salary_low', 'apply_cnt', 'job_name', 'status', 'level', 'source'];
     const sortCol = allowedSorts.includes(sort) ? sort : 'created_at';
     const sortOrder = order.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
@@ -141,7 +166,7 @@ export default async function jobsRoutes(fastify) {
 
     return {
       success: true,
-      data: rows,
+      data: rows.map(toJobDto),
       pagination: {
         page: pageNum,
         limit: limitNum,
@@ -193,9 +218,25 @@ export default async function jobsRoutes(fastify) {
 
     const timeStats = db.prepare('SELECT MIN(created_at) as collectedSince, MAX(updated_at) as lastUpdated FROM jobs').get();
 
+    // Dashboard status counts
+    const statusCounts = db.prepare(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'applied' THEN 1 ELSE 0 END) as applied,
+        SUM(CASE WHEN status = 'interview' THEN 1 ELSE 0 END) as interview,
+        SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted
+      FROM jobs
+    `).get();
+
     return {
       success: true,
       totalJobs,
+      total: statusCounts.total,
+      pending: statusCounts.pending,
+      applied: statusCounts.applied,
+      interview: statusCounts.interview,
+      accepted: statusCounts.accepted,
       byKeyword,
       byArea,
       topSkills,
@@ -203,5 +244,74 @@ export default async function jobsRoutes(fastify) {
       collectedSince: timeStats.collectedSince,
       lastUpdated: timeStats.lastUpdated,
     };
+  });
+
+  // GET /api/jobs/:id — must be registered AFTER /api/jobs/stats
+  fastify.get('/api/jobs/:id', async (request, reply) => {
+    const { id } = request.params;
+    const row = stmts.getJobById.get(id);
+
+    if (!row) {
+      return reply.code(404).send({ success: false, error: 'Job not found' });
+    }
+
+    return { success: true, data: toJobDto(row) };
+  });
+
+  // PATCH /api/jobs/:id
+  fastify.patch('/api/jobs/:id', async (request, reply) => {
+    const { id } = request.params;
+    const { status, level } = request.body || {};
+
+    const row = stmts.getJobById.get(id);
+    if (!row) {
+      return reply.code(404).send({ success: false, error: 'Job not found' });
+    }
+
+    const updates = [];
+    const params = { id };
+
+    if (status !== undefined) {
+      if (!VALID_STATUSES.includes(status)) {
+        return reply.code(400).send({ success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` });
+      }
+      updates.push('status = @status');
+      params.status = status;
+
+      // Sync is_applied
+      updates.push('is_applied = @is_applied');
+      params.is_applied = status === 'applied' ? 1 : 0;
+    }
+
+    if (level !== undefined) {
+      if (level !== null && !VALID_LEVELS.includes(level)) {
+        return reply.code(400).send({ success: false, error: `Invalid level. Must be one of: ${VALID_LEVELS.filter(Boolean).join(', ')}, or null` });
+      }
+      updates.push('level = @level');
+      params.level = level;
+    }
+
+    if (updates.length === 0) {
+      return reply.code(400).send({ success: false, error: 'No valid fields to update' });
+    }
+
+    updates.push("updated_at = datetime('now')");
+
+    db.prepare(`UPDATE jobs SET ${updates.join(', ')} WHERE id = @id`).run(params);
+
+    const updated = stmts.getJobById.get(id);
+    return { success: true, data: toJobDto(updated) };
+  });
+
+  // DELETE /api/jobs/:id
+  fastify.delete('/api/jobs/:id', async (request, reply) => {
+    const { id } = request.params;
+    const result = stmts.deleteJobById.run(id);
+
+    if (result.changes === 0) {
+      return reply.code(404).send({ success: false, error: 'Job not found' });
+    }
+
+    return { success: true };
   });
 }

@@ -60,6 +60,25 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_jobs_appear_date ON jobs(appear_date);
 `);
 
+// Idempotent migrations: add new columns
+const migrations = [
+  "ALTER TABLE jobs ADD COLUMN status TEXT DEFAULT 'unset'",
+  "ALTER TABLE jobs ADD COLUMN level TEXT DEFAULT NULL",
+  "ALTER TABLE jobs ADD COLUMN source TEXT DEFAULT '104'",
+];
+for (const sql of migrations) {
+  try { db.exec(sql); } catch { /* column already exists */ }
+}
+
+// Backfill: is_applied=1 → status='applied'
+db.exec("UPDATE jobs SET status = 'applied' WHERE is_applied = 1 AND status = 'unset'");
+
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
+  CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
+  CREATE INDEX IF NOT EXISTS idx_jobs_level ON jobs(level);
+`);
+
 // Prepared statements
 const stmts = {
   findByJobNo: db.prepare('SELECT id FROM jobs WHERE job_no = ?'),
@@ -69,12 +88,12 @@ const stmts = {
       job_no, job_name, cust_name, cust_no, co_industry, description,
       area, address, salary_low, salary_high, job_link, cust_link,
       skills, appear_date, apply_cnt, period, remote_work,
-      employee_count, lat, lon, is_applied, is_saved, search_keyword
+      employee_count, lat, lon, is_applied, is_saved, search_keyword, source
     ) VALUES (
       @job_no, @job_name, @cust_name, @cust_no, @co_industry, @description,
       @area, @address, @salary_low, @salary_high, @job_link, @cust_link,
       @skills, @appear_date, @apply_cnt, @period, @remote_work,
-      @employee_count, @lat, @lon, @is_applied, @is_saved, @search_keyword
+      @employee_count, @lat, @lon, @is_applied, @is_saved, @search_keyword, @source
     )
   `),
 
@@ -96,6 +115,9 @@ const stmts = {
   `),
 
   countJobs: db.prepare('SELECT COUNT(*) as total FROM jobs'),
+
+  getJobById: db.prepare('SELECT * FROM jobs WHERE id = ?'),
+  deleteJobById: db.prepare('DELETE FROM jobs WHERE id = ?'),
 };
 
 export { db, stmts };
