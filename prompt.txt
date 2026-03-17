@@ -1,0 +1,1 @@
+目前這個專案，缺少前端可視化的儀表板，請幫我實作一個，使用 vite + react + tailwindcss + shadcn/ui
