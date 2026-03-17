@@ -1,2 +1,4 @@
+.claude/
 server/node_modules/
 server/data/jobs.db
+prompt.txt
