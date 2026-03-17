@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
+import { useQuery, QUERY_KEYS } from '@/lib/react-query';
 import type { JobDto, DashboardStatsDto } from '@/domain';
-import type { JobLevel, JobSource, JobStatus } from '@/domain';
-import { MOCK_JOBS, MOCK_STATS } from './mock-data';
+import { fetchJobs, fetchJobStats } from '@/domain';
 
 export interface HomeViewModel {
   stats: DashboardStatsDto;
   jobs: JobDto[];
+  isLoading: boolean;
   searchQuery: string;
   onSearchChange: (value: string) => void;
   levelFilter: string;
@@ -29,6 +30,8 @@ export interface HomeViewModel {
   t: TFunction;
 }
 
+const EMPTY_STATS: DashboardStatsDto = { total: 0, pending: 0, applied: 0, interview: 0, accepted: 0 };
+
 export function useHomeViewModel(): HomeViewModel {
   const { t } = useTranslation();
 
@@ -40,31 +43,51 @@ export function useHomeViewModel(): HomeViewModel {
   const [pageSize, setPageSize] = useState(10);
   const [selectedJobIds, setSelectedJobIds] = useState<Set<string>>(new Set());
 
-  const filteredJobs = useMemo(() => {
-    return MOCK_JOBS.filter((job) => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase();
-        if (
-          !job.companyName.toLowerCase().includes(q) &&
-          !job.jobTitle.toLowerCase().includes(q)
-        ) {
-          return false;
-        }
-      }
-      if (levelFilter && job.level !== (levelFilter as JobLevel)) return false;
-      if (statusFilter && job.status !== (statusFilter as JobStatus)) return false;
-      if (sourceFilter && job.source !== (sourceFilter as JobSource)) return false;
-      return true;
-    });
-  }, [searchQuery, levelFilter, statusFilter, sourceFilter]);
+  const queryParams = {
+    page: currentPage,
+    pageSize,
+    search: searchQuery || undefined,
+    status: statusFilter || undefined,
+    level: levelFilter || undefined,
+    source: sourceFilter || undefined,
+  };
 
-  const totalItems = filteredJobs.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const { data: jobsData, isLoading: jobsLoading } = useQuery({
+    queryKey: QUERY_KEYS.jobs.list(queryParams),
+    queryFn: () => fetchJobs(queryParams),
+  });
 
-  const paginatedJobs = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredJobs.slice(start, start + pageSize);
-  }, [filteredJobs, currentPage, pageSize]);
+  const { data: statsData } = useQuery({
+    queryKey: QUERY_KEYS.jobs.stats,
+    queryFn: fetchJobStats,
+  });
+
+  const jobs = jobsData?.data ?? [];
+  const totalItems = jobsData?.pagination.total ?? 0;
+  const totalPages = jobsData?.pagination.totalPages ?? 1;
+  const stats = statsData
+    ? { total: statsData.total, pending: statsData.pending, applied: statsData.applied, interview: statsData.interview, accepted: statsData.accepted }
+    : EMPTY_STATS;
+
+  const onSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const onLevelFilterChange = (value: string) => {
+    setLevelFilter(value);
+    setCurrentPage(1);
+  };
+
+  const onStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
+  const onSourceFilterChange = (value: string) => {
+    setSourceFilter(value);
+    setCurrentPage(1);
+  };
 
   const onResetFilters = () => {
     setSearchQuery('');
@@ -93,24 +116,25 @@ export function useHomeViewModel(): HomeViewModel {
 
   const onToggleAllJobs = () => {
     setSelectedJobIds((prev) => {
-      if (prev.size === paginatedJobs.length) {
+      if (prev.size === jobs.length) {
         return new Set();
       }
-      return new Set(paginatedJobs.map((j) => j.id));
+      return new Set(jobs.map((j) => j.id));
     });
   };
 
   return {
-    stats: MOCK_STATS,
-    jobs: paginatedJobs,
+    stats,
+    jobs,
+    isLoading: jobsLoading,
     searchQuery,
-    onSearchChange: setSearchQuery,
+    onSearchChange,
     levelFilter,
     statusFilter,
     sourceFilter,
-    onLevelFilterChange: setLevelFilter,
-    onStatusFilterChange: setStatusFilter,
-    onSourceFilterChange: setSourceFilter,
+    onLevelFilterChange,
+    onStatusFilterChange,
+    onSourceFilterChange,
     onResetFilters,
     currentPage,
     pageSize,

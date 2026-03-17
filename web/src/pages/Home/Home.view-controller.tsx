@@ -39,6 +39,7 @@ export function HomeViewController(props: HomeViewModel) {
   const {
     stats,
     jobs,
+    isLoading,
     searchQuery,
     onSearchChange,
     levelFilter,
@@ -148,7 +149,21 @@ export function HomeViewController(props: HomeViewModel) {
             </tr>
           </thead>
           <tbody>
-            {jobs.map((job) => (
+            {isLoading && (
+              <tr>
+                <td colSpan={10} className={styles.loadingCell}>
+                  {t('dashboard.table.loading')}
+                </td>
+              </tr>
+            )}
+            {!isLoading && jobs.length === 0 && (
+              <tr>
+                <td colSpan={10} className={styles.loadingCell}>
+                  {t('dashboard.table.empty')}
+                </td>
+              </tr>
+            )}
+            {!isLoading && jobs.map((job) => (
               <tr key={job.id}>
                 <td className={styles.checkboxCol}>
                   <input

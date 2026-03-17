@@ -1,1 +1,1 @@
-// Domain repositories barrel
+export * from './job.repository';
