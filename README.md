@@ -36,41 +36,57 @@
 
 ## Tech Stack
 
-| 層級            | 技術                                   |
-| --------------- | -------------------------------------- |
-| Extension       | Chrome Manifest V3、Vanilla JavaScript |
-| Server          | Node.js (ES Modules)、Fastify 5        |
-| Database        | SQLite 3（better-sqlite3、WAL mode）   |
-| Package Manager | pnpm                                   |
+| 層級            | 技術                                              |
+| --------------- | ------------------------------------------------- |
+| Web Dashboard   | React 19、TypeScript 5、Vite 6、SCSS Modules      |
+| Extension       | Chrome Manifest V3、Vanilla JavaScript             |
+| Server          | Node.js (ES Modules)、Fastify 5                   |
+| Database        | SQLite 3（better-sqlite3、WAL mode）               |
+| State Mgmt      | React Query（server state）、Zustand（client state）|
+| i18n            | i18next（zh-TW）                                   |
+| Package Manager | pnpm                                               |
 
-> 無需任何 build step — Extension 和 Server 皆為原生 JavaScript。
+> Extension 和 Server 皆為原生 JavaScript，無需 build step。Web Dashboard 使用 Vite 開發與建置。
 
 ## 專案結構
 
 ```
 Job_Collector/
-├── extension/                  # Chrome Extension
-│   ├── manifest.json           # MV3 設定
-│   ├── background.js           # Service Worker：資料清理、轉發 Server
-│   ├── content.js              # Content Script：bridge（MAIN ↔ Extension）
-│   ├── injected.js             # MAIN world：攔截 fetch/XHR
-│   ├── popup.html              # Popup UI
-│   ├── popup.js                # Popup 邏輯
-│   ├── popup.css               # Popup 樣式
-│   └── icons/                  # Extension 圖示（16/48/128px）
+├── web/                        # Web Dashboard（React 19 + Vite）
+│   ├── src/
+│   │   ├── app/                # App 設定與進入點
+│   │   ├── components/         # 共用 UI 元件
+│   │   ├── domain/             # 業務邏輯、Service、DTO（Barrel Export）
+│   │   ├── hooks/              # 通用 Hooks
+│   │   ├── i18n/               # 國際化（zh-TW、en）
+│   │   ├── layouts/            # 頁面佈局
+│   │   ├── lib/                # 第三方套件封裝（axios、react-query、zod）
+│   │   ├── pages/              # 頁面（MVVM Binder Pattern）
+│   │   ├── router/             # 路由設定
+│   │   ├── store/              # Zustand 全域狀態
+│   │   ├── styles/             # 全域 SCSS 樣式
+│   │   └── utils/              # 工具函式（bind HOC）
+│   └── package.json
 │
-└── server/                     # Local Server
-    ├── package.json            # 專案設定與 scripts
-    ├── src/
-    │   ├── index.js            # Fastify 進入點（port 3104）
-    │   ├── db.js               # SQLite 初始化、prepared statements
-    │   ├── routes/
-    │   │   ├── jobs.js         # POST/GET /api/jobs、GET /api/jobs/stats
-    │   │   └── health.js       # GET /health
-    │   └── utils/
-    │       └── salary.js       # 薪資格式化與級距分類
-    └── data/
-        └── jobs.db             # SQLite 資料庫（自動建立、已 gitignore）
+├── server/                     # Local Server（Fastify 5 + SQLite）
+│   ├── src/
+│   │   ├── index.js            # Fastify 進入點（port 3104）
+│   │   ├── db.js               # SQLite 初始化、prepared statements
+│   │   ├── routes/
+│   │   │   ├── jobs.js         # POST/GET /api/jobs、GET /api/jobs/stats
+│   │   │   └── health.js       # GET /health
+│   │   └── utils/
+│   │       └── salary.js       # 薪資格式化與級距分類
+│   └── data/
+│       └── jobs.db             # SQLite 資料庫（自動建立、已 gitignore）
+│
+└── extension/                  # Chrome Extension（MV3）
+    ├── manifest.json           # MV3 設定
+    ├── background.js           # Service Worker：資料清理、轉發 Server
+    ├── content.js              # Content Script：bridge（MAIN ↔ Extension）
+    ├── injected.js             # MAIN world：攔截 fetch/XHR
+    ├── popup.html / .js / .css # Popup UI
+    └── icons/                  # Extension 圖示（16/48/128px）
 ```
 
 ## 快速開始
@@ -91,7 +107,17 @@ pnpm dev        # 開發模式（含 --watch 自動重啟）
 
 Server 啟動後會監聽 `http://localhost:3104`。
 
-### 2. 載入 Extension
+### 2. 啟動 Web Dashboard
+
+```bash
+cd web
+pnpm install
+pnpm dev        # Vite 開發伺服器（自動 proxy /api → localhost:3104）
+```
+
+開啟瀏覽器前往 Vite 顯示的 URL（預設 `http://localhost:5173`）即可查看儀表板。
+
+### 3. 載入 Extension
 
 1. 開啟 Chrome，前往 `chrome://extensions/`
 2. 開啟右上角「開發人員模式」
@@ -100,7 +126,7 @@ Server 啟動後會監聽 `http://localhost:3104`。
 
 載入成功後，工具列會出現 104 Job Collector 圖示。
 
-### 3. 開始收集
+### 4. 開始收集
 
 1. 前往 [104 人力銀行](https://www.104.com.tw/) 搜尋職缺
 2. Extension 會自動攔截搜尋結果並送入本地資料庫
@@ -272,14 +298,44 @@ cd server && pnpm dev
 
 ### 開發模式
 
+同時啟動 Server 與 Web Dashboard 進行開發：
+
 ```bash
+# Terminal 1 — Server
 cd server
-pnpm dev    # 使用 node --watch 自動重啟
+pnpm dev          # node --watch 自動重啟
+
+# Terminal 2 — Web Dashboard
+cd web
+pnpm dev          # Vite HMR，修改即時反映
 ```
 
-修改 `server/src/` 下的任何檔案後，Server 會自動重新啟動。
+- 修改 `server/src/` 下的檔案 → Server 自動重啟
+- 修改 `web/src/` 下的檔案 → Vite HMR 即時更新
+- 修改 `extension/` 的檔案 → 需到 `chrome://extensions/` 手動重新載入
 
-Extension 的修改則需到 `chrome://extensions/` 手動重新載入。
+### Web Dashboard
+
+| 指令             | 說明                        |
+| ---------------- | --------------------------- |
+| `pnpm dev`       | 啟動 Vite 開發伺服器        |
+| `pnpm build`     | TypeScript 編譯 + Vite 建置 |
+| `pnpm preview`   | 預覽 production build       |
+| `pnpm test`      | 執行 Vitest 測試            |
+| `pnpm test:watch`| 監聽模式執行測試             |
+
+**架構：** Clean Architecture + MVVM Binder Pattern（詳見 `AGENTS.md`）
+
+**Proxy 設定：** 開發環境下 `/api` 請求自動轉發至 `localhost:3104`，無需處理 CORS。
+
+### Server
+
+| 指令         | 說明                      |
+| ------------ | ------------------------- |
+| `pnpm dev`   | 開發模式（含 `--watch`）   |
+| `pnpm start` | 正式啟動（不含 `--watch`） |
+
+**Port：** `3104`（`0.0.0.0`）
 
 ### 資料庫
 
@@ -287,10 +343,3 @@ Extension 的修改則需到 `chrome://extensions/` 手動重新載入。
 - 模式：WAL（Write-Ahead Logging），支援並行讀寫
 - 資料表：`jobs`（職缺）、`search_logs`（搜尋紀錄）
 - 已建立 6 個 index 加速查詢
-
-### 正式啟動
-
-```bash
-cd server
-pnpm start    # 不含 --watch
-```
