@@ -9,6 +9,6 @@ export const JOB_STATUS = {
 
 export type JobStatus = (typeof JOB_STATUS)[keyof typeof JOB_STATUS];
 
-export type JobLevel = 'junior' | 'mid' | 'senior' | 'lead';
+export type JobLevel = 'junior' | 'mid' | 'senior' | 'lead' | null;
 
 export type JobSource = 'linkedin' | '104' | 'yourator' | 'cakeresume' | 'other';
