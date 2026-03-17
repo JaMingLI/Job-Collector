@@ -1,0 +1,40 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  border: 1px solid;
+}
+
+.linkedin {
+  background: var(--source-linkedin-bg);
+  color: var(--source-linkedin-fg);
+  border-color: var(--source-linkedin-fg);
+}
+
+.source104 {
+  background: var(--source-104-bg);
+  color: var(--source-104-fg);
+  border-color: var(--source-104-fg);
+}
+
+.yourator {
+  background: var(--source-yourator-bg);
+  color: var(--source-yourator-fg);
+  border-color: var(--source-yourator-fg);
+}
+
+.cakeresume {
+  background: var(--source-cakeresume-bg);
+  color: var(--source-cakeresume-fg);
+  border-color: var(--source-cakeresume-fg);
+}
+
+.other {
+  background: var(--source-other-bg);
+  color: var(--source-other-fg);
+  border-color: var(--source-other-fg);
+}

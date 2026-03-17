@@ -1,5 +1,47 @@
 {
   "app": {
     "title": "Job Collector"
+  },
+  "dashboard": {
+    "stats": {
+      "all": "全部職缺",
+      "pending": "待處理",
+      "applied": "已投遞",
+      "interview": "面試中",
+      "accepted": "已錄取"
+    },
+    "toolbar": {
+      "searchPlaceholder": "搜尋公司或職位...",
+      "levelFilter": "職級",
+      "statusFilter": "狀態",
+      "sourceFilter": "來源",
+      "reset": "重置篩選"
+    },
+    "table": {
+      "company": "公司",
+      "jobTitle": "職位名稱",
+      "level": "職級",
+      "status": "狀態",
+      "salary": "薪資",
+      "skills": "技能",
+      "source": "來源",
+      "postedDate": "刊登日期"
+    },
+    "pagination": {
+      "showing": "顯示 {{from}}-{{to}} 筆，共 {{total}} 筆",
+      "perPage": "每頁"
+    },
+    "jobStatus": {
+      "pending": "待處理",
+      "applied": "已投遞",
+      "interview": "面試中",
+      "accepted": "已錄取",
+      "rejected": "已拒絕",
+      "unset": "未設定"
+    },
+    "addJob": "新增職缺",
+    "status": {
+      "connected": "Connected"
+    }
   }
 }

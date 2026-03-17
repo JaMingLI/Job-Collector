@@ -1,0 +1,215 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+// Header
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerIcon {
+  color: var(--color-primary);
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-foreground);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  margin-left: 8px;
+}
+
+.statusText {
+  font-size: 13px;
+  color: var(--color-muted-fg);
+}
+
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-primary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+// Stats Bar
+.statsBar {
+  display: flex;
+  gap: 16px;
+  padding: 24px 32px;
+}
+
+// Toolbar
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px 16px;
+  gap: 16px;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resetBtn {
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  font-size: 14px;
+  font-family: var(--font-primary);
+  color: var(--color-muted-fg);
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--color-accent);
+  }
+}
+
+// Table
+.tableSection {
+  padding: 0 32px;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+
+  th,
+  td {
+    padding: 12px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th {
+    font-weight: 500;
+    color: var(--color-muted-fg);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 13px;
+  }
+
+  td {
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  tbody tr:hover {
+    background: var(--color-muted);
+  }
+}
+
+.checkboxCol {
+  width: 40px;
+}
+
+.actionsCol {
+  width: 48px;
+  text-align: center;
+}
+
+.companyCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.companyName {
+  font-weight: 500;
+  color: var(--color-foreground);
+}
+
+.industry {
+  font-size: 12px;
+  color: var(--color-muted-fg);
+}
+
+.jobTitleCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.externalLink {
+  color: var(--color-muted-fg);
+  display: inline-flex;
+  transition: color 0.15s;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+}
+
+.salaryCell {
+  font-variant-numeric: tabular-nums;
+}
+
+.skillsCell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.dateCell {
+  color: var(--color-muted-fg);
+}
+
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-muted-fg);
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-accent);
+  }
+}
+
+// Pagination
+.paginationSection {
+  padding: 0 32px 24px;
+}
