@@ -25,7 +25,9 @@
       "salary": "薪資",
       "skills": "技能",
       "source": "來源",
-      "postedDate": "刊登日期"
+      "postedDate": "刊登日期",
+      "loading": "載入中...",
+      "empty": "沒有符合條件的職缺"
     },
     "pagination": {
       "showing": "顯示 {{from}}-{{to}} 筆，共 {{total}} 筆",
