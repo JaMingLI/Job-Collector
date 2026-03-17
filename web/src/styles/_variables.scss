@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  // Colors
+  --color-background: #ffffff;
+  --color-foreground: #2a2933;
+  --color-card: #ffffff;
+  --color-border: #c5c5cb;
+  --color-muted: #f5f5f5;
+  --color-muted-fg: #616167;
+  --color-primary: #5749f4;
+  --color-primary-fg: #ffffff;
+  --color-accent: #f5f5f5;
+  --color-destructive: #cc3314;
+  --color-orange: #ff6600;
+
+  // Typography
+  --font-primary: 'Inter', system-ui, sans-serif;
+
+  // Radius
+  --radius-pill: 999px;
+  --radius-card: 12px;
+
+  // Status colors
+  --status-pending-bg: #fff7ed;
+  --status-pending-fg: #ea580c;
+  --status-applied-bg: #eff6ff;
+  --status-applied-fg: #2563eb;
+  --status-interview-bg: #f5f3ff;
+  --status-interview-fg: #7c3aed;
+  --status-accepted-bg: #f0fdf4;
+  --status-accepted-fg: #16a34a;
+  --status-rejected-bg: #fef2f2;
+  --status-rejected-fg: #dc2626;
+  --status-unset-bg: #f5f5f5;
+  --status-unset-fg: #616167;
+
+  // Level colors
+  --level-junior-bg: #dbeafe;
+  --level-junior-fg: #1d4ed8;
+  --level-mid-bg: #e0e7ff;
+  --level-mid-fg: #4338ca;
+  --level-senior-bg: #fae8ff;
+  --level-senior-fg: #a21caf;
+  --level-lead-bg: #fef3c7;
+  --level-lead-fg: #b45309;
+
+  // Source colors
+  --source-linkedin-bg: #eff6ff;
+  --source-linkedin-fg: #2563eb;
+  --source-104-bg: #fef3c7;
+  --source-104-fg: #b45309;
+  --source-yourator-bg: #f0fdf4;
+  --source-yourator-fg: #16a34a;
+  --source-cakeresume-bg: #fce7f3;
+  --source-cakeresume-fg: #be185d;
+  --source-other-bg: #f5f5f5;
+  --source-other-fg: #616167;
+}
