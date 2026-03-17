@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <img src="icons/icon48.png" width="24" height="24" alt="">
+    <h1>104 Job Collector</h1>
+  </div>
+
+  <div class="status-bar">
+    <span class="status-dot" id="statusDot"></span>
+    <span id="statusText">Checking server...</span>
+  </div>
+
+  <div class="offline-msg" id="offlineMsg">
+    Server is offline. Run: cd server && pnpm dev
+  </div>
+
+  <div class="stats">
+    <div class="stat-item">
+      <div class="stat-value" id="intercepted">0</div>
+      <div class="stat-label">Intercepted</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="newJobs">0</div>
+      <div class="stat-label">New</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="duplicates">0</div>
+      <div class="stat-label">Duplicate</div>
+    </div>
+  </div>
+
+  <div class="last-time" id="lastTime"></div>
+
+  <div class="actions">
+    <button class="btn btn-primary" id="openDashboard">Open Dashboard</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

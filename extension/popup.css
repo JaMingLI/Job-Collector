@@ -1,0 +1,125 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 14px;
+  color: #333;
+  background: #fff;
+}
+
+.header {
+  background: #FF6600;
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header h1 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.online {
+  background: #4CAF50;
+}
+
+.status-dot.offline {
+  background: #E53935;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: #eee;
+  margin: 12px 16px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.stat-item {
+  background: #fff;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FF6600;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.last-time {
+  padding: 0 16px 12px;
+  font-size: 12px;
+  color: #999;
+  text-align: center;
+}
+
+.actions {
+  padding: 0 16px 16px;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-primary {
+  background: #FF6600;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background: #e55c00;
+}
+
+.offline-msg {
+  display: none;
+  padding: 10px 16px;
+  background: #FFF3E0;
+  color: #E65100;
+  font-size: 12px;
+  text-align: center;
+}
+
+.offline-msg.show {
+  display: block;
+}
