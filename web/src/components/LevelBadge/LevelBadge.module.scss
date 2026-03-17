@@ -1,0 +1,29 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.junior {
+  background: var(--level-junior-bg);
+  color: var(--level-junior-fg);
+}
+
+.mid {
+  background: var(--level-mid-bg);
+  color: var(--level-mid-fg);
+}
+
+.senior {
+  background: var(--level-senior-bg);
+  color: var(--level-senior-fg);
+}
+
+.lead {
+  background: var(--level-lead-bg);
+  color: var(--level-lead-fg);
+}
